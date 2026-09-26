@@ -1,13 +1,12 @@
-// package com.sece.block;
+package com.sece.block;
 
-// import org.junit.jupiter.api.Test;
-// import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
-// @SpringBootTest
-// class BlockApplicationTests {
+@SpringBootTest
+class BlockApplicationTests {
 
-// 	@Test
-// 	void contextLoads() {
-// 	}
-
-// }
+    @Test
+    void contextLoads() {
+    }
+}
