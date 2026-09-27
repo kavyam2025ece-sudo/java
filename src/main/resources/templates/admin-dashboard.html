@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
@@ -8,12 +8,14 @@
 <body class="bg-light">
 <div class="container py-4">
     <h2 class="mb-4">Admin Dashboard</h2>
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
     <div class="row g-3">
         <div class="col-md-3">
             <div class="card text-bg-primary">
                 <div class="card-body">
                     <h5>Total Students</h5>
-                    <h3>0</h3>
+                    <h3 th:text="${totalStudents}">0</h3>
                 </div>
             </div>
         </div>
@@ -21,7 +23,7 @@
             <div class="card text-bg-success">
                 <div class="card-body">
                     <h5>Total Certificates</h5>
-                    <h3>0</h3>
+                    <h3 th:text="${totalCertificates}">0</h3>
                 </div>
             </div>
         </div>
@@ -29,7 +31,7 @@
             <div class="card text-bg-warning">
                 <div class="card-body">
                     <h5>Verified Certificates</h5>
-                    <h3>0</h3>
+                    <h3 th:text="${verifiedCertificates}">0</h3>
                 </div>
             </div>
         </div>
@@ -37,7 +39,7 @@
             <div class="card text-bg-info">
                 <div class="card-body">
                     <h5>Recent Certificates</h5>
-                    <h3>0</h3>
+                    <h3 th:text="${recentCertificates}">0</h3>
                 </div>
             </div>
         </div>
@@ -47,9 +49,9 @@
         <a href="/admin/students" class="btn btn-primary">View Students</a>
         <a href="/admin/students/add" class="btn btn-success">Add Student</a>
         <a href="/issue-certificate" class="btn btn-warning">Issue Certificate</a>
-        <a href="/api/certificates" class="btn btn-info">View Certificates</a>
+        <a href="/admin/certificates" class="btn btn-info">View Certificates</a>
         <a href="/verify-certificate" class="btn btn-secondary">Verify Certificate</a>
-        <a href="/api/blockchain" class="btn btn-dark">View Blockchain</a>
+        <a href="/admin/blockchain" class="btn btn-dark">View Blockchain</a>
     </div>
 </div>
 </body>

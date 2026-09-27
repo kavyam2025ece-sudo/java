@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Verify Certificate</title>
@@ -12,12 +12,28 @@
             <div class="card shadow">
                 <div class="card-body">
                     <h3 class="mb-4">Verify Certificate</h3>
-                    <form action="/api/verify" method="get">
+                    <form id="verification-form">
                         <div class="input-group mb-3">
-                            <input type="text" class="form-control" name="certificateId" placeholder="Enter Certificate ID" required>
+                            <input id="certificate-id" type="text" class="form-control" name="certificateId" placeholder="Enter Certificate ID" th:value="${certificateId}" required>
                             <button class="btn btn-success" type="submit">Verify</button>
                         </div>
                     </form>
+
+                    <div id="verification-message" class="alert d-none" role="status"></div>
+                    <div id="verification-result" class="row g-4 d-none">
+                        <div class="col-md-8">
+                            <h4>Certificate Details</h4>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <tbody id="certificate-details"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <h4>Verification QR</h4>
+                            <img id="verification-qr" class="img-thumbnail" width="220" height="220" alt="Certificate verification QR code">
+                        </div>
+                    </div>
 
                     <div class="mt-3">
                         <a href="/" class="btn btn-link">Back to Home</a>
@@ -27,5 +43,75 @@
         </div>
     </div>
 </div>
+<script>
+    const verificationForm = document.getElementById("verification-form");
+    const certificateIdInput = document.getElementById("certificate-id");
+    const verificationMessage = document.getElementById("verification-message");
+    const verificationResult = document.getElementById("verification-result");
+    const certificateDetails = document.getElementById("certificate-details");
+    const verificationQr = document.getElementById("verification-qr");
+
+    const detailFields = [
+        ["Certificate ID", "certificateId"],
+        ["Student Name", "studentName"],
+        ["Register Number", "registerNumber"],
+        ["Course", "course"],
+        ["Certificate Type", "certificateType"],
+        ["Issue Date", "issueDate"],
+        ["Certificate Hash", "certificateHash"],
+        ["Blockchain Hash", "blockchainHash"],
+        ["Block Index", "blockIndex"],
+        ["Verification Status", "verificationStatus"]
+    ];
+
+    async function verifyCertificate(certificateId) {
+        verificationResult.classList.add("d-none");
+        verificationMessage.className = "alert alert-info";
+        verificationMessage.textContent = "Checking certificate...";
+
+        try {
+            const response = await fetch(`/api/verify/${encodeURIComponent(certificateId)}`);
+            const result = await response.json();
+            verificationMessage.className = `alert ${result.valid ? "alert-success" : "alert-danger"}`;
+            verificationMessage.textContent = result.message;
+
+            if (!result.certificateId) {
+                return;
+            }
+
+            certificateDetails.replaceChildren();
+            for (const [label, key] of detailFields) {
+                const row = document.createElement("tr");
+                const heading = document.createElement("th");
+                const value = document.createElement("td");
+                heading.textContent = label;
+                value.textContent = result[key] ?? "N/A";
+                row.append(heading, value);
+                certificateDetails.append(row);
+            }
+
+            verificationQr.src = `/api/verify/${encodeURIComponent(result.certificateId)}/qr`;
+            verificationResult.classList.remove("d-none");
+        } catch (error) {
+            verificationMessage.className = "alert alert-danger";
+            verificationMessage.textContent = "Unable to verify this certificate. Please try again.";
+        }
+    }
+
+    verificationForm.addEventListener("submit", event => {
+        event.preventDefault();
+        const certificateId = certificateIdInput.value.trim();
+        if (certificateId) {
+            const url = new URL(window.location.href);
+            url.searchParams.set("certificateId", certificateId);
+            window.history.replaceState({}, "", url);
+            verifyCertificate(certificateId);
+        }
+    });
+
+    if (certificateIdInput.value.trim()) {
+        verifyCertificate(certificateIdInput.value.trim());
+    }
+</script>
 </body>
 </html>

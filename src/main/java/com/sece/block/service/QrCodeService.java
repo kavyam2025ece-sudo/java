@@ -8,6 +8,7 @@ import com.google.zxing.common.BitMatrix;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,22 +21,28 @@ public class QrCodeService {
         try {
             String folderPath = "src/main/resources/static/certificates";
             Path folder = Paths.get(folderPath);
-            if (!Files.exists(folder)) {
-                Files.createDirectories(folder);
-            }
+            Files.createDirectories(folder);
 
             String fileName = certificateId + "-qr.png";
             Path filePath = folder.resolve(fileName);
+            Files.write(filePath, generateQrCodeBytes(verificationUrl));
+            return "/certificates/" + fileName;
+        } catch (IOException e) {
+            throw new RuntimeException("QR code generation failed.", e);
+        }
+    }
 
+    public byte[] generateQrCodeBytes(String verificationUrl) {
+        try {
             BitMatrix matrix = new MultiFormatWriter().encode(
                     verificationUrl,
                     BarcodeFormat.QR_CODE,
                     300,
                     300
             );
-
-            MatrixToImageWriter.writeToPath(matrix, "PNG", filePath);
-            return "/certificates/" + fileName;
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            MatrixToImageWriter.writeToStream(matrix, "PNG", output);
+            return output.toByteArray();
         } catch (WriterException | IOException e) {
             throw new RuntimeException("QR code generation failed.", e);
         }

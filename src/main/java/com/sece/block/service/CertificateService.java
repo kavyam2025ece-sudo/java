@@ -45,8 +45,12 @@ public class CertificateService {
         return certificateRepository.findByStudentId(studentId);
     }
 
-    public Certificate issueCertificate(Long studentId, String courseName, String certificateType, String issueDate) {
-        Student student = studentRepository.findById(studentId)
+    public Certificate issueCertificate(String registerNumber, String courseName, String certificateType, String issueDate) {
+        if (registerNumber == null || registerNumber.trim().isEmpty()) {
+            throw new RuntimeException("Student register number is required.");
+        }
+
+        Student student = studentRepository.findByRegisterNumber(registerNumber.trim())
                 .orElseThrow(() -> new RuntimeException("Student not found."));
 
         if (courseName == null || courseName.trim().isEmpty()) {

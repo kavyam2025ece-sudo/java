@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Issue Certificate</title>
@@ -12,10 +12,11 @@
             <div class="card shadow">
                 <div class="card-body">
                     <h3 class="mb-4">Issue Certificate</h3>
-                    <form method="post" action="/api/certificates/issue">
+                    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+                    <form method="post" action="/admin/certificates/issue">
                         <div class="mb-3">
-                            <label class="form-label">Student ID</label>
-                            <input type="number" class="form-control" name="studentId" placeholder="Enter student ID" required>
+                            <label class="form-label">Student Register Number</label>
+                            <input type="text" class="form-control" name="registerNumber" placeholder="e.g. 25EC105" pattern="[A-Za-z0-9]+" title="Use letters and numbers only" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Course Name</label>

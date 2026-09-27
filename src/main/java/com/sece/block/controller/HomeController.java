@@ -52,7 +52,15 @@ public class HomeController {
     }
 
     @GetMapping("/verify-certificate")
-    public String verifyCertificatePage() {
+    public String verifyCertificatePage(@RequestParam(required = false) String certificateId, Model model) {
+        model.addAttribute("certificateId", certificateId == null ? "" : certificateId);
+        return "verify-certificate";
+    }
+
+    @GetMapping("/verify/{certificateId}")
+    public String verifyCertificateLink(@org.springframework.web.bind.annotation.PathVariable String certificateId,
+                                        Model model) {
+        model.addAttribute("certificateId", certificateId);
         return "verify-certificate";
     }
 

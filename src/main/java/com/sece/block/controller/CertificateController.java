@@ -6,7 +6,9 @@ import com.sece.block.repository.StudentRepository;
 import com.sece.block.service.CertificateService;
 import com.sece.block.service.PdfService;
 import com.sece.block.service.QrCodeService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 
@@ -41,17 +43,22 @@ public class CertificateController {
 
     @PostMapping("/issue")
     public Certificate issueCertificate(
-            @RequestParam Long studentId,
+            @RequestParam String registerNumber,
             @RequestParam String courseName,
             @RequestParam String certificateType,
-            @RequestParam String issueDate) {
+            @RequestParam String issueDate,
+            HttpServletRequest request) {
 
-        Certificate certificate = certificateService.issueCertificate(studentId, courseName, certificateType, issueDate);
+        Certificate certificate = certificateService.issueCertificate(registerNumber, courseName, certificateType, issueDate);
 
-        String verificationUrl = "http://localhost:8080/verify/" + certificate.getCertificateId();
+        String verificationUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+                .replacePath("/verify/" + certificate.getCertificateId())
+                .replaceQuery(null)
+                .build()
+                .toUriString();
         String qrPath = qrCodeService.generateQrCode(verificationUrl, certificate.getCertificateId());
 
-        Student student = studentRepository.findById(studentId).orElse(null);
+        Student student = studentRepository.findById(certificate.getStudentId()).orElse(null);
         if (student != null) {
             String pdfPath = pdfService.generateCertificatePdf(student, certificate);
             System.out.println("QR generated for student: " + student.getName() + " -> " + qrPath);

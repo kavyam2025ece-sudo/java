@@ -3,7 +3,11 @@ package com.sece.block.controller;
 import com.sece.block.entity.BlockchainBlock;
 import com.sece.block.repository.BlockchainBlockRepository;
 import com.sece.block.service.BlockchainService;
+import com.sece.block.service.QrCodeService;
 import com.sece.block.service.VerificationService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.MediaType;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashMap;
@@ -17,13 +21,16 @@ public class VerificationController {
     private final VerificationService verificationService;
     private final BlockchainBlockRepository blockchainBlockRepository;
     private final BlockchainService blockchainService;
+    private final QrCodeService qrCodeService;
 
     public VerificationController(VerificationService verificationService,
                                    BlockchainBlockRepository blockchainBlockRepository,
-                                   BlockchainService blockchainService) {
+                                   BlockchainService blockchainService,
+                                   QrCodeService qrCodeService) {
         this.verificationService = verificationService;
         this.blockchainBlockRepository = blockchainBlockRepository;
         this.blockchainService = blockchainService;
+        this.qrCodeService = qrCodeService;
     }
 
     @GetMapping("/verify/{certificateId}")
@@ -39,6 +46,16 @@ public class VerificationController {
     @GetMapping("/verify-api")
     public Map<String, Object> verifyCertificateByApi(@RequestParam String certificateId) {
         return verifyCertificateData(certificateId);
+    }
+
+    @GetMapping(value = "/verify/{certificateId}/qr", produces = MediaType.IMAGE_PNG_VALUE)
+    public byte[] getVerificationQrCode(@PathVariable String certificateId, HttpServletRequest request) {
+        String verificationUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+                .replacePath("/verify/" + certificateId)
+                .replaceQuery(null)
+                .build()
+                .toUriString();
+        return qrCodeService.generateQrCodeBytes(verificationUrl);
     }
 
     private Map<String, Object> verifyCertificateData(String certificateId) {

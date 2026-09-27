@@ -41,12 +41,13 @@
                 <th>Course</th>
                 <th>Type</th>
                 <th>Status</th>
+                <th>Verification QR</th>
                 <th>Action</th>
             </tr>
             </thead>
             <tbody>
             <tr th:if="${#lists.isEmpty(certificates)}">
-                <td colspan="5" class="text-center">No certificates yet.</td>
+                <td colspan="6" class="text-center">No certificates yet.</td>
             </tr>
             <tr th:each="certificate : ${certificates}">
                 <td th:text="${certificate.certificateId}">CERT-0001</td>
@@ -56,8 +57,18 @@
                     <span class="badge" th:classappend="${certificate.status == 'VALID'} ? 'bg-success' : 'bg-warning text-dark'"
                           th:text="${certificate.status}">VALID</span>
                 </td>
+                <td class="text-center">
+                    <a th:href="@{'/api/verify/' + ${certificate.certificateId} + '/qr'}"
+                       th:download="${certificate.certificateId} + '-verification-qr.png'"
+                       th:title="'Download verification QR for ' + ${certificate.certificateId}">
+                        <img th:src="@{'/api/verify/' + ${certificate.certificateId} + '/qr'}"
+                             th:alt="'Verification QR for ' + ${certificate.certificateId}"
+                             width="100" height="100" loading="lazy">
+                    </a>
+                    <div><small>Scan or click to download</small></div>
+                </td>
                 <td>
-                    <a class="btn btn-sm btn-primary" th:href="@{'/api/verify/' + ${certificate.certificateId}}">Verify</a>
+                    <a class="btn btn-sm btn-primary" th:href="@{'/verify/' + ${certificate.certificateId}}">Verify</a>
                 </td>
             </tr>
             </tbody>
